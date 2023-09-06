@@ -96,7 +96,7 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
             train_loader,
             criterion,
             optimizer,
-            warmup_lr_scheduler,
+            lr_scheduler,
             epoch,
             args,
         )

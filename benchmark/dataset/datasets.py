@@ -111,7 +111,7 @@ class TwoCropTransform:
 def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, doCLR = False, random_state = 42, num_workers = 16):
 
     transform_train = [
-        transforms.RandomResizedCrop(size, scale=(0.2, 1.0)),
+        transforms.RandomResizedCrop(size, scale=(0.6, 1.0)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
         transforms.RandomGrayscale(p=0.2),
