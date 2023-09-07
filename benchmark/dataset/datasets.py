@@ -120,7 +120,7 @@ def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, 
 
     if args.training_mode == "RotNet":
         transform_train = [
-            transforms.RandomResizedCrop(size, scale=(0.8, 1.0)),
+            transforms.RandomResizedCrop(size, scale=(0.6, 1.0)),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
         ]
