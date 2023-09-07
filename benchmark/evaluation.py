@@ -8,7 +8,7 @@ from utils import (
     get_features,
     msp,
 )
-
+import torch
 
 def get_scores(ftrain, ftest, food, labelstrain, args):
     if args.clusters == 1:
@@ -82,4 +82,39 @@ def get_eval_results_msp(ftest, food):
 
     fpr95 = get_fpr(dtest, dood)
     auroc, aupr = get_roc_sklearn(dtest, dood), get_pr_sklearn(dtest, dood)
+    return fpr95, auroc, aupr
+
+def run_evaluation(model,
+                   args,
+                   checkpoint_path,
+                   train_loader,
+                   test_loader,
+                   ood_loader,
+                   ):
+
+    ckpt_dict = torch.load(checkpoint_path)
+    args.clusters = 1
+    model.load_state_dict(ckpt_dict['state_dict'] if 'state_dict' in ckpt_dict.keys() else ckpt_dict['model'])
+
+    if args.training_mode == 'SimCLR':
+        features_train, labels_train = get_features(
+            model.encoder, train_loader
+        )
+
+        features_test, _ = get_features(model.encoder, test_loader)
+        print("In-distribution features shape: ", features_train.shape, features_test.shape)
+
+        features_ood, _ = get_features(model.encoder, ood_loader)
+
+        fpr95, auroc, aupr = get_eval_results_clustering(
+            np.copy(features_train),
+            np.copy(features_test),
+            np.copy(features_ood),
+            np.copy(labels_train),
+            args,
+        )
+
+    else:
+        raise KeyError(f'Training Mode {args.training_mode} not recognized')
+
     return fpr95, auroc, aupr
