@@ -12,7 +12,7 @@ class OODDataset(Dataset):
 
     def __init__(self, dataset_name, split='Out', transform=None, random_state = 42, rotnet = False):
         '''
-        Returns a dataset split based on 75% 25%.
+        Returns a datasets split based on 75% 25%.
 
         :param dataset_name:
         :param split:

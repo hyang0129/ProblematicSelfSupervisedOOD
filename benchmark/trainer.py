@@ -67,6 +67,10 @@ def train_one_epoch(
         pbar.set_description(f'Epoch {epoch} : Loss {total_loss / (i + 1) :.3f}')
 
 def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader, test_loader,  ):
+
+    best_prec1 = 0
+
+
     if args.warmup:
         wamrup_epochs = 10
         print(f"Warmup training for {wamrup_epochs} epochs")
