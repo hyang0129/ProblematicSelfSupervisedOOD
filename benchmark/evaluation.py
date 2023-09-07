@@ -7,6 +7,7 @@ from utils import (
     get_fpr,
     get_features,
     msp,
+    predict_loop
 )
 import torch
 
@@ -86,6 +87,7 @@ def get_eval_results_msp(ftest, food):
 
 def run_evaluation(model,
                    args,
+                   device,
                    checkpoint_path,
                    train_loader,
                    test_loader,
@@ -101,10 +103,10 @@ def run_evaluation(model,
             model.encoder, train_loader
         )
 
-        features_test, _ = get_features(model.encoder, test_loader)
+        features_test, _ = get_features(model.encoder, test_loader, device=device)
         print("In-distribution features shape: ", features_train.shape, features_test.shape)
 
-        features_ood, _ = get_features(model.encoder, ood_loader)
+        features_ood, _ = get_features(model.encoder, ood_loader, device=device)
 
         fpr95, auroc, aupr = get_eval_results_clustering(
             np.copy(features_train),
@@ -113,6 +115,14 @@ def run_evaluation(model,
             np.copy(labels_train),
             args,
         )
+
+    elif args.training_mode == 'SupCon':
+
+        test_pred, _ = predict_loop(model, test_loader, device)
+        ood_pred, _ = predict_loop(model, ood_loader, device)
+
+        fpr95, auroc, aupr = get_eval_results_msp(test_pred, ood_pred)
+
 
     else:
         raise KeyError(f'Training Mode {args.training_mode} not recognized')

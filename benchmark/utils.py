@@ -115,7 +115,7 @@ def get_pr_sklearn(xin, xood):
 def get_fpr(xin, xood):
     return np.sum(xood < np.percentile(xin, 95)) / len(xood)
 
-def get_features(model, dataloader, max_images=10 ** 10, verbose=False):
+def get_features(model, dataloader, device, max_images=10 ** 10, verbose=False):
     features, labels = [], []
     total = 0
 
@@ -126,7 +126,7 @@ def get_features(model, dataloader, max_images=10 ** 10, verbose=False):
         if total > max_images:
             break
 
-        img, label = img.cuda(), label.cuda()
+        img, label = img.to(device), label.to(device)
 
         features += list(model(img).data.cpu().numpy())
         labels += list(label.data.cpu().numpy())
