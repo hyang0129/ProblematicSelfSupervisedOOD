@@ -106,10 +106,10 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
         )
 
         if args.training_mode in ["SupCon", ]:
-            prec1, _ = evaluate_acc(model, device, test_loader, criterion, args, epoch)
+            prec1, _ = evaluate_acc(model, device, test_loader)
 
         elif args.training_mode in ["SimCLR", 'RotNet']:
-            prec1, _ = knn(model, device, test_loader, criterion, args, epoch)
+            prec1, _ = knn(model, device, test_loader)
 
         # remember best accuracy and save checkpoint
         is_best = prec1 > best_prec1
