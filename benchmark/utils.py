@@ -13,7 +13,7 @@ from sklearn.model_selection import cross_val_score
 import torch
 import torch.nn.functional as F
 from torchvision import transforms, datasets
-
+from tqdm.autonotebook import tqdm
 
 #### logging ####
 def save_checkpoint(state, is_best, results_dir, filename="checkpoint.pth.tar"):
@@ -121,7 +121,7 @@ def get_features(model, dataloader, device, max_images=10 ** 10, verbose=False):
 
     model.eval()
 
-    for index, (img, label) in enumerate(dataloader):
+    for index, (img, label) in tqdm(enumerate(dataloader)):
 
         if total > max_images:
             break
