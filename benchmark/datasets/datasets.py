@@ -174,6 +174,9 @@ class OODDataset(Dataset):
             if dataset_name == 'cifar10h':
                 self.return_grouped_cifar = True
 
+        else:
+            raise KeyError(f'Dataset name {dataset_name} is not valid')
+
         return datasource, dataframe
 
 class TwoCropTransform:
