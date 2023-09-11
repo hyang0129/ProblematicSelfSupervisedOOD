@@ -127,4 +127,6 @@ def run_evaluation(model,
     else:
         raise KeyError(f'Training Mode {args.training_mode} not recognized')
 
+    print(f'FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
+
     return fpr95, auroc, aupr
