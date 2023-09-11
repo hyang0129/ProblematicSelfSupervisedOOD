@@ -46,7 +46,7 @@ class OODDataset(Dataset):
             self.source = datasource['validation']
 
         self.transform = transform
-        self.new_label_int = new_label_int
+        self.new_label_int = None if split == 'Out' else new_label_int
 
     def __len__(self):
         return len(self.df)
