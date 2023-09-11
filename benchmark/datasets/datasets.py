@@ -96,6 +96,31 @@ class OODDataset(Dataset):
             else:
                 dataframe = pd.read_csv('food_label_index.csv', index_col=[0])
 
+        elif dataset_name== 'cars':
+
+            train_data = torchvision.datasets.StanfordCars(root="./", download=True, split='train')
+            test_data = torchvision.datasets.StanfordCars(root="./", download=True, split='test')
+
+            label_file = 'cars_label_index.csv'
+
+            ds = {'train': train_data, 'validation': test_data}
+            datasource = {'train': train_data, 'validation': test_data}
+
+            if not os.path.exists(label_file):
+                label_info = []
+
+                for i, data in tqdm(enumerate(ds['train'])):
+                    label_info.append({'split': 'train', 'index': i, 'label': data[1]})
+
+                for i, data in tqdm(enumerate(ds['validation'])):
+                    label_info.append({'split': 'val', 'index': i, 'label': data[1]})
+
+                df = pd.DataFrame(label_info)
+                df.to_csv(label_file)
+            else:
+                df = pd.read_csv(label_file, index_col=[0])
+
+            dataframe = df
 
         return datasource, dataframe
 
