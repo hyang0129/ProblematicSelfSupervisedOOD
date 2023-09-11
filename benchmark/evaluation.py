@@ -1,7 +1,7 @@
 
 import faiss
 import numpy as np
-from utils import (
+from benchmark.utils import (
     get_roc_sklearn,
     get_pr_sklearn,
     get_fpr,
