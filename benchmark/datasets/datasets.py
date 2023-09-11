@@ -31,6 +31,9 @@ class OODDataset(Dataset):
         df = dataframe
 
         self.in_distro = pd.Series(df.label.unique()).sample(frac=0.75, random_state=random_state).values
+        if self.dataset_name in ['cifar10', 'cifar10h']:
+            self.in_distro = [0, 1, 2, 3, 5, 6, 8, 9] # all but horse and deer classes
+
         self.out_distro = pd.Series(df.label.unique())[~pd.Series(df.label.unique()).isin(self.in_distro)].values
 
         new_label_int = {old: new_label_int for new_label_int, old in enumerate(self.in_distro)} # labels 1 5 6 9 to 0 1 2 3
@@ -47,6 +50,7 @@ class OODDataset(Dataset):
 
         self.transform = transform
         self.new_label_int = None if split == 'Out' else new_label_int
+        self.return_grouped_cifar = False
 
     def __len__(self):
         return len(self.df)
@@ -57,6 +61,8 @@ class OODDataset(Dataset):
         label = row['label']
         if self.new_label_int is not None:
             label = self.new_label_int[label]
+        elif self.return_grouped_cifar:
+            label = row['group_idx']
 
         data = self.source[int(row['index'])]
 
@@ -121,6 +127,52 @@ class OODDataset(Dataset):
                 df = pd.read_csv(label_file, index_col=[0])
 
             dataframe = df
+
+        elif dataset_name in ['cifar10', 'cifar10h']:
+
+            hierarchy = [
+                ['airplane', 0, 0],
+                ['automobile', 1, 0],
+                ['bird', 2, 1],
+                ['cat', 3, 1],
+                ['deer', 4, 1],
+                ['dog', 5, 1],
+                ['frog', 6, 1],
+                ['horse', 7, 1],
+                ['ship', 8, 0],
+                ['truck', 9, 0],
+            ]
+
+            hierarchy = pd.DataFrame(hierarchy, columns=['classname', 'label', 'group_idx'])
+
+            label_file = 'cifar10_index.csv'
+
+            train_data = torchvision.datasets.CIFAR10(root='.', download=True, train=True)
+            test_data = torchvision.datasets.CIFAR10(root='.', download=True, train=False)
+
+            ds = {'train': train_data, 'validation': test_data}
+            datasource = {'train': train_data, 'validation': test_data}
+
+            if not os.path.exists(label_file):
+                label_info = []
+
+                for i, data in tqdm(enumerate(ds['train'])):
+                    label_info.append({'split': 'train', 'index': i, 'label': data[1]})
+
+                for i, data in tqdm(enumerate(ds['validation'])):
+                    label_info.append({'split': 'val', 'index': i, 'label': data[1]})
+
+                df = pd.DataFrame(label_info)
+                df.to_csv(label_file)
+            else:
+                df = pd.read_csv(label_file, index_col=[0])
+
+            dataframe = df
+
+            dataframe = dataframe.join(hierarchy, on='label', rsuffix='r')
+
+            if dataset_name == 'cifar10h':
+                self.return_grouped_cifar = True
 
         return datasource, dataframe
 
