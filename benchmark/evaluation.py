@@ -100,7 +100,7 @@ def run_evaluation(model,
 
     if args.training_mode == 'SimCLR':
         features_train, labels_train = get_features(
-            model.encoder, train_loader
+            model.encoder, train_loader, device
         )
 
         features_test, _ = get_features(model.encoder, test_loader, device=device)
