@@ -141,6 +141,6 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
             f"Epoch {epoch}, validation accuracy {prec1}, best_prec {best_prec1}"
         )
 
-        return model
+    return model
 
 
