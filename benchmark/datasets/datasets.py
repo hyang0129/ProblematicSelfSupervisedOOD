@@ -38,6 +38,7 @@ class OODDataset(Dataset):
         self.out_distro = pd.Series(df.label.unique())[~pd.Series(df.label.unique()).isin(self.in_distro)].values
 
         new_label_int = {old: new_label_int for new_label_int, old in enumerate(self.in_distro)} # labels 1 5 6 9 to 0 1 2 3
+        new_label_int = None if self.return_grouped_cifar else new_label_int
 
         if split == 'Train':
             self.df = df[(df.split == 'train') & (df.label.isin(self.in_distro))].reset_index()
