@@ -24,6 +24,7 @@ class OODDataset(Dataset):
 
         self.rotnet = rotnet
         self.dataset_name = dataset_name
+        self.return_grouped_cifar = False
 
         datasource, dataframe = self.build(dataset_name)
 
@@ -50,7 +51,7 @@ class OODDataset(Dataset):
 
         self.transform = transform
         self.new_label_int = None if split == 'Out' else new_label_int
-        self.return_grouped_cifar = False
+
 
     def __len__(self):
         return len(self.df)
