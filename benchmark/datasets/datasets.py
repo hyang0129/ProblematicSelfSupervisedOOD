@@ -240,5 +240,3 @@ def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, 
 
     return train_loader, test_loader, ood_loader, train_set, test_set, ood_set
 
-
-
