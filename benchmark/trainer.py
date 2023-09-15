@@ -7,6 +7,7 @@ from sklearn.model_selection import cross_val_score
 import torch.nn.functional as F
 import torch
 import os
+from loguru import logger 
 
 def train_one_epoch(
         model,
@@ -73,7 +74,7 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
 
     if args.warmup:
         wamrup_epochs = 10
-        print(f"Warmup training for {wamrup_epochs} epochs")
+        logger.info(f"Warmup training for {wamrup_epochs} epochs")
         warmup_lr_scheduler = torch.optim.lr_scheduler.CyclicLR(
             optimizer,
             base_lr=0.01,
@@ -137,7 +138,7 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
                 filename=f"checkpoint_{epoch + 1}.pth.tar",
             )
 
-        print(
+        logger.info(
             f"Epoch {epoch}, validation accuracy {prec1}, best_prec {best_prec1}"
         )
 

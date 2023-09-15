@@ -10,6 +10,7 @@ from benchmark.utils import (
     predict_loop
 )
 import torch
+from loguru import logger
 
 def get_scores(ftrain, ftest, food, labelstrain, args):
     if args.clusters == 1:
@@ -104,7 +105,7 @@ def run_evaluation(model,
         )
 
         features_test, _ = get_features(model.encoder, test_loader, device=device)
-        print("In-distribution features shape: ", features_train.shape, features_test.shape)
+        logger.info("In-distribution features shape: ", features_train.shape, features_test.shape)
 
         features_ood, _ = get_features(model.encoder, ood_loader, device=device)
 
@@ -127,6 +128,6 @@ def run_evaluation(model,
     else:
         raise KeyError(f'Training Mode {args.training_mode} not recognized')
 
-    print(f'FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
+    logger.info(f'FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
 
     return fpr95, auroc, aupr
