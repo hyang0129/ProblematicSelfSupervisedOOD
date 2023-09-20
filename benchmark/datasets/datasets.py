@@ -101,10 +101,12 @@ class OODDataset(Dataset):
 
                     df = pd.DataFrame(label_info)
                     df.to_csv('food_label_index.csv')
+
+                dataframe = df
             else:
                 dataframe = pd.read_csv('food_label_index.csv', index_col=[0])
 
-        elif dataset_name== 'cars':
+        elif dataset_name == 'cars':
 
             train_data = torchvision.datasets.StanfordCars(root="./", download=True, split='train')
             test_data = torchvision.datasets.StanfordCars(root="./", download=True, split='test')

@@ -71,7 +71,9 @@ def get_eval_results_clustering(ftrain, ftest, food, labelstrain, args):
 
     fpr95 = get_fpr(dtest, dood)
     auroc, aupr = get_roc_sklearn(dtest, dood), get_pr_sklearn(dtest, dood)
-    return fpr95, auroc, aupr
+
+
+    return fpr95, auroc, aupr, dtest, dood
 
 def get_eval_results_msp(ftest, food):
     """
@@ -84,7 +86,7 @@ def get_eval_results_msp(ftest, food):
 
     fpr95 = get_fpr(dtest, dood)
     auroc, aupr = get_roc_sklearn(dtest, dood), get_pr_sklearn(dtest, dood)
-    return fpr95, auroc, aupr
+    return fpr95, auroc, aupr, dtest, dood
 
 def run_evaluation(model,
                    args,
@@ -109,7 +111,7 @@ def run_evaluation(model,
 
         features_ood, _ = get_features(model.encoder, ood_loader, device=device)
 
-        fpr95, auroc, aupr = get_eval_results_clustering(
+        fpr95, auroc, aupr, dtest, dood = get_eval_results_clustering(
             np.copy(features_train),
             np.copy(features_test),
             np.copy(features_ood),
@@ -122,7 +124,7 @@ def run_evaluation(model,
         test_pred, _ = predict_loop(model, test_loader, device)
         ood_pred, _ = predict_loop(model, ood_loader, device)
 
-        fpr95, auroc, aupr = get_eval_results_msp(test_pred, ood_pred)
+        fpr95, auroc, aupr, dtest, dood = get_eval_results_msp(test_pred, ood_pred)
 
 
     else:
@@ -130,4 +132,4 @@ def run_evaluation(model,
 
     logger.info(f'FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
 
-    return fpr95, auroc, aupr
+    return fpr95, auroc, aupr, dtest, dood
