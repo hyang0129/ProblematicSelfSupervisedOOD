@@ -28,7 +28,7 @@ sys.path.append('ProblematicSelfSupervisedOOD')
 @click.option('--lr', default = 0.5, help = 'learning rate max', type = float)
 @click.option('--momentum', default = 0.9, help = 'SGD momentum', type = float)
 @click.option('--weight_decay', default = 1e-4, help = 'SGD weight decay')
-@click.option('--epochs', default = 500, type = int, help = 'We recommend 500 for self supervised and up to 150 for supervised')
+@click.option('--epochs', default = 0, type = int, help = 'We recommend 500 for self supervised and up to 150 for supervised, if 0 sets to 150 for supervised and 500 for self supervised')
 @click.option('--training_mode', required=True, help = 'SimCLR is Contrastive learning, SupCon is softmax CE supervised, and RotNet is rotation based')
 @click.option('--print_freq', default = 100, type = int)
 @click.option('--save_freq', default = 50, type = int)
@@ -81,6 +81,10 @@ def main(arch,
 
     args.clusters = 1 # always one and used in SimCLR for SSD method
 
+    if epochs == 0 and args.training_mode == 'SupCon':
+        args.epochs = 150
+    elif args.epochs == 0:
+        args.epochs = 500
 
     Path(args.result_sub_dir + '/checkpoint').mkdir(parents=True, exist_ok=True)
 
