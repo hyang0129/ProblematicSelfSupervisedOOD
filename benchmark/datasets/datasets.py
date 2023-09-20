@@ -199,7 +199,8 @@ class AffectNetDataset(Dataset):
                  datapath='../datasets/AffectNet', 
                  split = 'Train', 
                  transform=None, 
-                 classes = [0, 2, 4, 6, 3, 5, 7, 1]): 
+                 classes = [0, 2, 4, 6, 3, 5, 7, 1]
+                 ,sample=0.4): 
         
         assert split in ['Train', 'Test', 'T'] 
         
@@ -213,21 +214,28 @@ class AffectNetDataset(Dataset):
             self.framepath = os.path.join(datapath, 'val_set','annotations')
 
         
-        self.imagespath = [os.path.join(self.imagepath, f) for f in os.listdir(self.imagepath)]
-        self.num_images = len(self.imagespath)
-        self.imagelabels = [0 for _ in range(self.num_images)]
+        self.imagespath, self.imagelabels = [], []
+        imagespath = [os.path.join(self.imagepath, f) for f in os.listdir(self.imagepath)]
+        #num_images = len(imagespath)
+        #imagelabels = [0 for _ in range(num_images)]
         for p in glob.glob(os.path.join(self.framepath, '*_exp.npy')):
             label = np.load(p)
-            img = '..' + p.split('.')[2][:-4] + '.jpg'
-            img = img.replace('annotations', 'images')
-            #print(img)
-            idx = self.imagespath.index(img)
-            self.imagelabels[idx] = int(label)
+            if int(label) in classes: 
+                img = '..' + p.split('.')[2][:-4] + '.jpg'
+                img = img.replace('annotations', 'images')
+                #print(img)
+                #idx = imagespath.index(img)
+                self.imagespath.append(img)
+                self.imagelabels.append(int(label))
+        
+        self.num_images = len(self.imagelabels)
         #self.imagespatches = []
-        sample = int(self.num_images*0.4)
-        self.imagespath = self.imagespath[:sample]
-        self.num_images = sample
-        self.imagelabels = self.imagelabels[:sample]
+        #sample_ind = int(self.num_images*sample)
+        #self.imagespath = self.imagespath[:sample_ind]
+        #self.num_images = len(self.imagespath)
+        #self.imagelabels = self.imagelabels[:sample_ind]
+
+        print("{} Images: {}".format(self.split, self.num_images))
 
         self.transform = transform
     
