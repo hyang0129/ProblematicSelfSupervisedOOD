@@ -1,12 +1,15 @@
 import tensorflow_datasets as tfds
 import os
 import pandas as pd
+import numpy as np
 from tqdm.autonotebook import tqdm
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
 from torchvision import transforms
+import glob
+import cv2
 
 class OODDataset(Dataset):
 
@@ -189,6 +192,66 @@ class TwoCropTransform:
 
     def __call__(self, x):
         return [self.transform(x), self.transform(x)]
+    
+class AffectNetDataset(Dataset):
+    
+    def __init__(self, 
+                 datapath='../datasets/AffectNet', 
+                 split = 'Train', 
+                 transform=None, 
+                 classes = [0, 2, 4, 6, 3, 5, 7, 1]): 
+        
+        assert split in ['Train', 'Test', 'T'] 
+        
+        self.classes = classes 
+
+        if split == 'Train': 
+            self.imagepath = os.path.join(datapath, 'train_set', 'images')
+            self.framepath = os.path.join(datapath, 'train_set','annotations')
+        else: 
+            self.imagepath = os.path.join(datapath, 'val_set', 'images')
+            self.framepath = os.path.join(datapath, 'val_set','annotations')
+
+        
+        self.imagespath = [os.path.join(self.imagepath, f) for f in os.listdir(self.imagepath)]
+        self.num_images = len(self.imagespath)
+        self.imagelabels = [0 for _ in range(self.num_images)]
+        for p in glob.glob(os.path.join(self.framepath, '*_exp.npy')):
+            label = np.load(p)
+            img = '..' + p.split('.')[2][:-4] + '.jpg'
+            img = img.replace('annotations', 'images')
+            #print(img)
+            idx = self.imagespath.index(img)
+            self.imagelabels[idx] = int(label)
+        #self.imagespatches = []
+        sample = int(self.num_images*0.4)
+        self.imagespath = self.imagespath[:sample]
+        self.num_images = sample
+        self.imagelabels = self.imagelabels[:sample]
+
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.imagespath)
+
+    def __getitem__(self, idx):
+        path = self.imagespath[idx]
+        image = cv2.imread(path)
+        image = cv2.resize(image, (48, 48), interpolation = cv2.INTER_AREA)
+        label = self.imagelabels[idx]
+        #pixels = row[' pixels']
+
+        #pixels = np.array(pixels.split()).astype(int) 
+        #pixels = np.reshape(pixels, (48, 48))
+        #pixels = np.expand_dims(pixels, axis = -1)    
+        #image = np.repeat(pixels, 3, axis = -1)
+        image = np.uint8(image)        
+        image = Image.fromarray(image)
+
+        if self.transform:
+            image = self.transform(image)
+ 
+        return image, label
 
 def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, doCLR = False, random_state = 42, num_workers = 16):
 
