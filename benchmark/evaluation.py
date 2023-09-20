@@ -11,6 +11,8 @@ from benchmark.utils import (
 )
 import torch
 from loguru import logger
+import cupy as cp
+from tqdm.autonotebook import tqdm
 
 def get_scores(ftrain, ftest, food, labelstrain, args):
     if args.clusters == 1:
@@ -86,6 +88,53 @@ def get_eval_results_msp(ftest, food):
 
     fpr95 = get_fpr(dtest, dood)
     auroc, aupr = get_roc_sklearn(dtest, dood), get_pr_sklearn(dtest, dood)
+    return fpr95, auroc, aupr, dtest, dood
+
+
+
+
+
+def get_eval_results_knn(ftrain, ftest, food, args):
+
+
+    ftrain /= np.linalg.norm(ftrain, axis=-1, keepdims=True) + 1e-10
+    ftest /= np.linalg.norm(ftest, axis=-1, keepdims=True) + 1e-10
+    food /= np.linalg.norm(food, axis=-1, keepdims=True) + 1e-10
+
+    m, s = np.mean(ftrain, axis=0, keepdims=True), np.std(ftrain, axis=0, keepdims=True)
+
+    ftrain = (ftrain - m) / (s + 1e-10)
+    ftest = (ftest - m) / (s + 1e-10)
+    food = (food - m) / (s + 1e-10)
+
+    cpftrain = cp.array(ftrain)
+
+    def calculate_nearest_neighbor(feature, cpftrain=cpftrain , k=50):
+        diff = cpftrain - feature
+
+        diff = cp.linalg.norm(diff, axis=-1)
+        a = diff
+
+        return cp.sum(a[cp.argsort(a)[k]])
+
+    f = calculate_nearest_neighbor
+    test_scores = []
+    n = 1000
+    iters = int(len(ftest)/n) + 1
+    for i in tqdm(range(iters)):
+        test_scores.append(cp.apply_along_axis(f, 1, cp.array(ftest[i * n:(1 + i) * n])).get())
+
+    iters = int(len(food) / n) + 1
+    ood_scores = []
+    for i in tqdm(range(iters)):
+        ood_scores.append(cp.apply_along_axis(f, 1, cp.array(food[i * n:(1 + i) * n])).get())
+
+    dtest = np.concatenate(test_scores)
+    dood = np.concatenate(ood_scores)
+
+    fpr95 = get_fpr(dtest, dood)
+    auroc, aupr = get_roc_sklearn(dtest, dood), get_pr_sklearn(dtest, dood)
+
     return fpr95, auroc, aupr, dtest, dood
 
 def run_evaluation(model,
