@@ -108,8 +108,8 @@ class OODDataset(Dataset):
 
         elif dataset_name == 'cars':
 
-            train_data = torchvision.datasets.StanfordCars(root="./", download=True, split='train')
-            test_data = torchvision.datasets.StanfordCars(root="./", download=True, split='test')
+            train_data = torchvision.datasets.StanfordCars(root="data", download=True, split='train')
+            test_data = torchvision.datasets.StanfordCars(root="data", download=True, split='test')
 
             label_file = 'cars_label_index.csv'
 
