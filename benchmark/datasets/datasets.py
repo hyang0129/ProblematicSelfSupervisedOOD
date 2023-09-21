@@ -214,28 +214,34 @@ class AffectNetDataset(Dataset):
             self.framepath = os.path.join(datapath, 'val_set','annotations')
 
         
+        #print(os.path.join(self.framepath, '*_exp.npy'))
         self.imagespath, self.imagelabels = [], []
-        imagespath = [os.path.join(self.imagepath, f) for f in os.listdir(self.imagepath)]
+        #imagespath = [os.path.join(self.imagepath, f) for f in os.listdir(self.imagepath)]
         #num_images = len(imagespath)
         #imagelabels = [0 for _ in range(num_images)]
         for p in glob.glob(os.path.join(self.framepath, '*_exp.npy')):
             label = np.load(p)
-            if int(label) in classes: 
-                img = '..' + p.split('.')[2][:-4] + '.jpg'
+            if int(label) in classes:
+                parts = p.split('_')
+                img = parts[0] + '_' + parts[1] + '.jpg'
                 img = img.replace('annotations', 'images')
-                #print(img)
                 #idx = imagespath.index(img)
                 self.imagespath.append(img)
                 self.imagelabels.append(int(label))
         
+        #print(self.imagespath)
         self.num_images = len(self.imagelabels)
+        
         #self.imagespatches = []
-        #sample_ind = int(self.num_images*sample)
-        #self.imagespath = self.imagespath[:sample_ind]
-        #self.num_images = len(self.imagespath)
-        #self.imagelabels = self.imagelabels[:sample_ind]
+        
+        if split == "Train":
+            sample_ind = int(self.num_images*sample)
+            self.imagespath = self.imagespath[:sample_ind]
+            self.num_images = len(self.imagespath)
+            self.imagelabels = self.imagelabels[:sample_ind]
+        
 
-        print("{} Images: {}".format(self.split, self.num_images))
+        print("{} Images: {}".format(split, self.num_images))
 
         self.transform = transform
     
@@ -245,7 +251,7 @@ class AffectNetDataset(Dataset):
     def __getitem__(self, idx):
         path = self.imagespath[idx]
         image = cv2.imread(path)
-        image = cv2.resize(image, (48, 48), interpolation = cv2.INTER_AREA)
+        #image = cv2.resize(image, (48, 48), interpolation = cv2.INTER_AREA)
         label = self.imagelabels[idx]
         #pixels = row[' pixels']
 
