@@ -39,4 +39,4 @@ spack load /dr4ipev # gcc 12.2
 #echo "Launching Jupyter Server"
 #jupyter lab --ip=0.0.0.0 --no-browser --port=8888
 
-python main_experiment.py --dataset $1 --training_mode $2
+python main_experiment.py --dataset $1 --training_mode $2 --random_state $3
