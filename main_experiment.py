@@ -74,7 +74,7 @@ def main(arch,
     args.save_freq = save_freq
     args.random_state = random_state
     args.results_dir = results_dir
-    args.result_sub_dir = args.results_dir + f'/{args.dataset}/{args.training_mode}'
+    args.result_sub_dir = args.results_dir + f'/{args.dataset}/{args.training_mode}/state_{args.random_state}'
     args.best_checkpoint_path = args.result_sub_dir + '/checkpoint/model_best.pth.tar'
     args.log_path = args.result_sub_dir + '/logs.txt'
     args.device = device
