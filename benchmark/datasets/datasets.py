@@ -244,3 +244,11 @@ def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, 
 
     return train_loader, test_loader, ood_loader, train_set, test_set, ood_set
 
+def get_inv_norm():
+    invTrans = transforms.Compose([transforms.Normalize(mean=[0., 0., 0.],
+                                                        std=1 / np.array([0.2675, 0.2565, 0.2761])),
+                                   transforms.Normalize(mean=np.array([0.5071, 0.4867, 0.4408]) * -1,
+                                                        std=[1., 1., 1.]),
+                                   ])
+
+    return invTrans
