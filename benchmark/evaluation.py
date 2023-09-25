@@ -150,7 +150,7 @@ def run_evaluation(model,
     args.clusters = 1
     model.load_state_dict(ckpt_dict['state_dict'] if 'state_dict' in ckpt_dict.keys() else ckpt_dict['model'])
 
-    if args.training_mode == 'SimCLR':
+    if args.training_mode in ['SimCLR', 'RotNet']:
         features_train, labels_train = get_features(
             model.encoder, train_loader, device
         )

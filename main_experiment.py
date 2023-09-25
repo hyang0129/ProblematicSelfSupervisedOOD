@@ -79,6 +79,8 @@ def main(arch,
     args.log_path = args.result_sub_dir + '/logs.txt'
     args.device = device
 
+    logger.add(args.log_path, level = 'INFO', backtrace=True)
+
     logger.info(args)
 
     args.clusters = 1 # always one and used in SimCLR for SSD method
@@ -90,7 +92,7 @@ def main(arch,
 
     Path(args.result_sub_dir + '/checkpoint').mkdir(parents=True, exist_ok=True)
 
-    logger.add(args.log_path)
+
 
     # do training
 
