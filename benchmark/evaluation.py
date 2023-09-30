@@ -13,6 +13,7 @@ import torch
 from loguru import logger
 import cupy as cp
 from tqdm.autonotebook import tqdm
+import math
 
 def get_scores(ftrain, ftest, food, labelstrain, args):
     if args.clusters == 1:
@@ -91,12 +92,7 @@ def get_eval_results_msp(ftest, food):
     return fpr95, auroc, aupr, dtest, dood
 
 
-
-
-
 def get_eval_results_knn(ftrain, ftest, food, args):
-
-
     ftrain /= np.linalg.norm(ftrain, axis=-1, keepdims=True) + 1e-10
     ftest /= np.linalg.norm(ftest, axis=-1, keepdims=True) + 1e-10
     food /= np.linalg.norm(food, axis=-1, keepdims=True) + 1e-10
@@ -109,7 +105,7 @@ def get_eval_results_knn(ftrain, ftest, food, args):
 
     cpftrain = cp.array(ftrain)
 
-    def calculate_nearest_neighbor(feature, cpftrain=cpftrain , k=50):
+    def calculate_nearest_neighbor(feature, cpftrain=cpftrain, k=50):
         diff = cpftrain - feature
 
         diff = cp.linalg.norm(diff, axis=-1)
@@ -120,11 +116,12 @@ def get_eval_results_knn(ftrain, ftest, food, args):
     f = calculate_nearest_neighbor
     test_scores = []
     n = 1000
-    iters = int(len(ftest)/n) + 1
+    iters = int(math.ceil(len(ftest) / n))
+
     for i in tqdm(range(iters)):
         test_scores.append(cp.apply_along_axis(f, 1, cp.array(ftest[i * n:(1 + i) * n])).get())
 
-    iters = int(len(food) / n) + 1
+    iters = int((math.ceil((len(food)) / n)))
     ood_scores = []
     for i in tqdm(range(iters)):
         ood_scores.append(cp.apply_along_axis(f, 1, cp.array(food[i * n:(1 + i) * n])).get())
@@ -167,6 +164,17 @@ def run_evaluation(model,
             np.copy(labels_train),
             args,
         )
+        logger.info(f'SSD FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
+
+
+        fpr95, auroc, aupr, dtest, dood = get_eval_results_knn(
+            np.copy(features_train),
+            np.copy(features_test),
+            np.copy(features_ood),
+            args,
+        )
+        logger.info(f'KNN FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
+
 
     elif args.training_mode == 'SupCon':
 
@@ -175,10 +183,10 @@ def run_evaluation(model,
 
         fpr95, auroc, aupr, dtest, dood = get_eval_results_msp(test_pred, ood_pred)
 
-
+        logger.info(f'SupCon FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
     else:
         raise KeyError(f'Training Mode {args.training_mode} not recognized')
 
-    logger.info(f'FPR95 = {fpr95}, AUROC = {auroc}, AUPR = {aupr}')
+
 
     return fpr95, auroc, aupr, dtest, dood
