@@ -7,6 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
 from torchvision import transforms
+from benchmark.datasets.affectnet import Affectnet
 
 class OODDataset(Dataset):
 
@@ -129,6 +130,16 @@ class OODDataset(Dataset):
                 df.to_csv(label_file)
             else:
                 df = pd.read_csv(label_file, index_col=[0])
+
+            dataframe = df
+
+        elif dataset_name == 'affectnet':
+            df = pd.read_csv('affectnet_label_index.csv', index_col=[0])
+
+            train_data = Affectnet(df, split='train')
+            test_data = Affectnet(df, split='test')
+
+            datasource = {'train': train_data, 'validation': test_data}
 
             dataframe = df
 
