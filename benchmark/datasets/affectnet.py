@@ -22,5 +22,7 @@ class Affectnet(Dataset):
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
+
+        image = image.permute([1, 2, 0]).numpy()
         return image, label
 
