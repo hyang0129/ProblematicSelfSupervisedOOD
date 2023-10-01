@@ -137,7 +137,7 @@ class OODDataset(Dataset):
             df = pd.read_csv('affectnet_label_index.csv', index_col=[0])
 
             train_data = Affectnet(df, split='train')
-            test_data = Affectnet(df, split='test')
+            test_data = Affectnet(df, split='val')
 
             datasource = {'train': train_data, 'validation': test_data}
 
