@@ -74,7 +74,7 @@ class OODDataset(Dataset):
         else:
             image = data[0] # Pytorch tuple style
 
-        if type(image) is not Image.Image:
+        if type(image) is not Image.Image and type(image) is not torch.Tensor:
             image = Image.fromarray(image)
 
         if self.transform:
