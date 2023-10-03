@@ -33,8 +33,9 @@ class OODDataset(Dataset):
         df = dataframe
 
         self.in_distro = pd.Series(df.label.unique()).sample(frac=0.75, random_state=random_state).values
-        if self.dataset_name in ['cifar10', 'cifar10h']:
-            self.in_distro = [0, 1, 2, 3, 5, 6, 8, 9] # all but horse and deer classes
+
+        # if self.dataset_name in ['cifar10', 'cifar10h']:
+        #     self.in_distro = [0, 1, 2, 3, 5, 6, 8, 9] # all but horse and deer classes
 
         self.out_distro = pd.Series(df.label.unique())[~pd.Series(df.label.unique()).isin(self.in_distro)].values
 
