@@ -424,9 +424,9 @@ def main():
                                                     np.std(eval_metrics['AUROC']), 
                                                     np.mean(eval_metrics['AUPR']), 
                                                     np.std(eval_metrics['AUPR']), 
-                                                    np.mean(eval_metrics['FPR95'],
+                                                    np.mean(eval_metrics['FPR95']),
                                                     np.std(eval_metrics['FPR95']))
-                                                ))
+                                                )
 
 if __name__ == "__main__":
     main()
