@@ -1,0 +1,4 @@
+./CSI/logs/
+./CSI/outs/
+./CSI/*_train.sh
+./CSI/*_eval.sh
