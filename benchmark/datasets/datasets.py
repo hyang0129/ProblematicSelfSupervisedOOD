@@ -8,6 +8,7 @@ import torch
 import torchvision
 from torchvision import transforms
 from benchmark.datasets.affectnet import Affectnet
+import numpy as np
 
 class OODDataset(Dataset):
 
@@ -33,9 +34,6 @@ class OODDataset(Dataset):
         df = dataframe
 
         self.in_distro = pd.Series(df.label.unique()).sample(frac=0.75, random_state=random_state).values
-
-        # if self.dataset_name in ['cifar10', 'cifar10h']:
-        #     self.in_distro = [0, 1, 2, 3, 5, 6, 8, 9] # all but horse and deer classes
 
         self.out_distro = pd.Series(df.label.unique())[~pd.Series(df.label.unique()).isin(self.in_distro)].values
 
@@ -136,7 +134,7 @@ class OODDataset(Dataset):
 
         elif dataset_name == 'affectnet':
             df = pd.read_csv('affectnet_label_index.csv', index_col=[0])
-
+            df[df.index < 100000]
             train_data = Affectnet(df, split='train')
             test_data = Affectnet(df, split='val')
 
@@ -144,22 +142,8 @@ class OODDataset(Dataset):
 
             dataframe = df
 
-        elif dataset_name in ['cifar10', 'cifar10h']:
+        elif dataset_name in ['cifar10']:
 
-            hierarchy = [
-                ['airplane', 0, 0],
-                ['automobile', 1, 0],
-                ['bird', 2, 1],
-                ['cat', 3, 1],
-                ['deer', 4, 1],
-                ['dog', 5, 1],
-                ['frog', 6, 1],
-                ['horse', 7, 1],
-                ['ship', 8, 0],
-                ['truck', 9, 0],
-            ]
-
-            hierarchy = pd.DataFrame(hierarchy, columns=['classname', 'label', 'group_idx'])
 
             label_file = 'cifar10_index.csv'
 
@@ -185,10 +169,34 @@ class OODDataset(Dataset):
 
             dataframe = df
 
-            dataframe = dataframe.join(hierarchy, on='label', rsuffix='r')
 
-            if dataset_name == 'cifar10h':
-                self.return_grouped_cifar = True
+
+        elif dataset_name in ['cifar100']:
+
+            label_file = 'cifar100_index.csv'
+
+            train_data = torchvision.datasets.CIFAR100(root='.', download=True, train=True)
+            test_data = torchvision.datasets.CIFAR100(root='.', download=True, train=False)
+
+            ds = {'train': train_data, 'validation': test_data}
+            datasource = {'train': train_data, 'validation': test_data}
+
+            if not os.path.exists(label_file):
+                label_info = []
+
+                for i, data in tqdm(enumerate(ds['train'])):
+                    label_info.append({'split': 'train', 'index': i, 'label': data[1]})
+
+                for i, data in tqdm(enumerate(ds['validation'])):
+                    label_info.append({'split': 'val', 'index': i, 'label': data[1]})
+
+                df = pd.DataFrame(label_info)
+                df.to_csv(label_file)
+            else:
+                df = pd.read_csv(label_file, index_col=[0])
+
+            dataframe = df
+
 
         else:
             raise KeyError(f'Dataset name {dataset_name} is not valid')
