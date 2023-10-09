@@ -7,8 +7,9 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
 from torchvision import transforms
-from benchmark.datasets.affectnet import Affectnet
+from benchmark.datasets.affectnet import Affectnet, FaceDataset
 import numpy as np
+
 
 class OODDataset(Dataset):
 
@@ -141,6 +142,35 @@ class OODDataset(Dataset):
             datasource = {'train': train_data, 'validation': test_data}
 
             dataframe = df
+
+        elif dataset_name == 'icmlface':
+            df = pd.read_csv('data/icml_face_data.csv')
+
+            df['split'] = 'unknown'
+
+            df.loc[df[' Usage'] == 'Training', 'split'] = 'train'
+            df.loc[df[' Usage'].str.contains('Test'), 'split'] = 'val'
+            df['label'] = df['emotion']
+            df['index'] = df.index
+
+
+
+        elif dataset_name == 'icmlface':
+            df = pd.read_csv('data/icml_face_data.csv')
+
+            df['split'] = 'unknown'
+
+            df.loc[df[' Usage'] == 'Training', 'split'] = 'train'
+            df.loc[df[' Usage'].str.contains('Test'), 'split'] = 'val'
+            df['label'] = df['emotion']
+            df['index'] = df.index
+
+            dataset = FaceDataset(df)
+
+            datasource = {'train': dataset, 'validation': dataset}
+
+            dataframe = df
+
 
         elif dataset_name in ['cifar10']:
 
