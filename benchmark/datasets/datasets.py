@@ -152,8 +152,9 @@ class OODDataset(Dataset):
             df.loc[df[' Usage'].str.contains('Test'), 'split'] = 'val'
             df['label'] = df['emotion']
             df['index'] = df.index
-
-
+            dataset = FaceDataset(df)
+            datasource = {'train': dataset, 'validation': dataset}
+            dataframe = df
 
         elif dataset_name == 'icmlface':
             df = pd.read_csv('data/icml_face_data.csv')
