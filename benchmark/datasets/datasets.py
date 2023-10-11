@@ -243,7 +243,7 @@ class TwoCropTransform:
     def __call__(self, x):
         return [self.transform(x), self.transform(x)]
 
-def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, doCLR = False, random_state = 42, num_workers = 16):
+def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, doCLR = False, random_state = 42, num_workers = 16, shuffle_train = True):
 
     transform_train = [
         transforms.RandomResizedCrop(size, scale=(0.6, 1.0)),
@@ -281,7 +281,7 @@ def get_dataloaders(dataset_name, args, batch_size=32, normalize=True, size=32, 
     ood_set = OODDataset(dataset_name, split='Out', transform=transform_test, random_state = random_state)
 
     train_loader = DataLoader(
-        train_set, batch_size=batch_size, shuffle=True,
+        train_set, batch_size=batch_size, shuffle=shuffle_train,
         num_workers=num_workers, pin_memory=True, persistent_workers=True
     )
     test_loader = DataLoader(
