@@ -86,7 +86,7 @@ def main(arch,
     args.clusters = 1 # always one and used in SimCLR for SSD method
 
     if epochs == 0 and args.training_mode == 'SupCon':
-        args.epochs = 500
+        args.epochs = 150
     elif args.epochs == 0:
         args.epochs = 500
 
