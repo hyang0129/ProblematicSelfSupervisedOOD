@@ -5,29 +5,6 @@ from torch.utils.data import Dataset
 import numpy as np
 from PIL import Image
 
-class Affectnet(Dataset):
-    def __init__(self, df, split='train', transform=None, target_transform=None, ):
-        self.df = df[df.split == split]
-        self.transform = transform
-        self.target_transform = target_transform
-
-    def __len__(self):
-        return len(self.df)
-
-    def __getitem__(self, idx):
-        img_path = self.df.iloc[idx].image_path
-
-        image = read_image(img_path)
-        label = self.df.iloc[idx].label
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            label = self.target_transform(label)
-
-        image = image.permute([1, 2, 0]).numpy()
-        return image, label
-
-
 class FaceDataset(Dataset):
     # https://www.kaggle.com/competitions/challenges-in-representation-learning-facial-expression-recognition-challenge/data?select=icml_face_data.csv
     def __init__(self, df, transform=None, ):

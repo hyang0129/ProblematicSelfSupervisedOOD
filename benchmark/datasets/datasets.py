@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
 from torchvision import transforms
-from benchmark.datasets.affectnet import Affectnet, FaceDataset
+from benchmark.datasets.facedataset import FaceDataset
 import numpy as np
 
 

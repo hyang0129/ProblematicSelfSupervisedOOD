@@ -1,8 +1,3 @@
-import tensorflow_datasets as tfds
-from tqdm.notebook import tqdm
-import pandas as pd
-import os
-import numpy as np
 from pathlib import Path
 from benchmark.datasets.datasets import get_dataloaders
 from benchmark.trainer import train
@@ -18,7 +13,7 @@ sys.path.append('ProblematicSelfSupervisedOOD')
 
 @click.command()
 @click.option('--arch',  default="resnet50", help = 'Architecture, so resnet50')
-@click.option('--dataset', required=True,  help = 'One of affectnet, food101, cars, cifar10, or cifar10h')
+@click.option('--dataset', required=True,  help = 'One of icmlface, food101, cars, cifar10, or cifar100')
 @click.option('--normalize', default=True,  help = 'Normalize data to imagenet std and mean')
 @click.option('--batch_size', default = 256, type = int, help = 'Large batchsize recommended for self supervised learning')
 @click.option('--data_dir', default='data', help = 'Where to store data. You would need to place manually downloaded datasets here')
