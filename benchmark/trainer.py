@@ -1,24 +1,20 @@
-import torch.nn as nn
-import time
 from benchmark.utils import save_checkpoint, knn, evaluate_acc
 from tqdm.notebook import tqdm
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score
-import torch.nn.functional as F
 import torch
 import os
-from loguru import logger 
+from loguru import logger
+
 
 def train_one_epoch(
-        model,
-        device,
-        dataloader,
-        criterion,
-        optimizer,
-        lr_scheduler=None,
-        epoch=0,
-        args=None,
-        do_float16 = True
+    model,
+    device,
+    dataloader,
+    criterion,
+    optimizer,
+    lr_scheduler=None,
+    epoch=0,
+    args=None,
+    do_float16=True,
 ):
     if do_float16:
         scaler = torch.cuda.amp.GradScaler()
@@ -30,12 +26,10 @@ def train_one_epoch(
         images, target = data[0], data[1].to(device)
         bsz = target.shape[0]
 
-        with torch.autocast(device_type='cuda', dtype=torch.float16):
-            if args.training_mode in ["SupCon", 'RotNet']:
-
+        with torch.autocast(device_type="cuda", dtype=torch.float16):
+            if args.training_mode in ["SupCon", "RotNet"]:
                 pred = model(images.to(device))
                 loss = criterion(pred, target)
-
 
             elif args.training_mode == "SimCLR":
                 images = torch.cat([images[0], images[1]], dim=0).to(device)
@@ -65,12 +59,20 @@ def train_one_epoch(
 
         total_loss += loss.item()
 
-        pbar.set_description(f'Epoch {epoch} : Loss {total_loss / (i + 1) :.3f}')
+        pbar.set_description(f"Epoch {epoch} : Loss {total_loss / (i + 1) :.3f}")
 
-def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader, test_loader,  ):
 
+def train(
+    args,
+    model,
+    optimizer,
+    criterion,
+    lr_scheduler,
+    device,
+    train_loader,
+    test_loader,
+):
     best_prec1 = 0
-
 
     if args.warmup:
         wamrup_epochs = 10
@@ -94,7 +96,6 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
             )
 
     for epoch in range(0, args.epochs):
-
         train_one_epoch(
             model,
             device,
@@ -106,10 +107,12 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
             args,
         )
 
-        if args.training_mode in ["SupCon", ]:
+        if args.training_mode in [
+            "SupCon",
+        ]:
             prec1, _ = evaluate_acc(model, device, test_loader)
 
-        elif args.training_mode in ["SimCLR", 'RotNet']:
+        elif args.training_mode in ["SimCLR", "RotNet"]:
             prec1, _ = knn(model, device, test_loader)
 
         # remember best accuracy and save checkpoint
@@ -143,5 +146,3 @@ def train(args, model, optimizer, criterion, lr_scheduler, device, train_loader,
         )
 
     return model
-
-

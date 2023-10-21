@@ -1,19 +1,15 @@
 import os
-import sys
 import numpy as np
-import math
 import time
-import shutil, errno
-from distutils.dir_util import copy_tree
+import shutil
 import sklearn.metrics as skm
-from sklearn.covariance import ledoit_wolf
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 
 import torch
 import torch.nn.functional as F
-from torchvision import transforms, datasets
 from tqdm.autonotebook import tqdm
+
 
 #### logging ####
 def save_checkpoint(state, is_best, results_dir, filename="checkpoint.pth.tar"):
@@ -23,6 +19,7 @@ def save_checkpoint(state, is_best, results_dir, filename="checkpoint.pth.tar"):
             os.path.join(results_dir, filename),
             os.path.join(results_dir, "model_best.pth.tar"),
         )
+
 
 #### evaluation ####
 def accuracy(output, target, topk=(1,)):
@@ -97,6 +94,7 @@ def evaluate_acc(model, device, val_loader):
 
     return acc, 0
 
+
 #### OOD detection ####
 def get_roc_sklearn(xin, xood):
     labels = [0] * len(xin) + [1] * len(xood)
@@ -115,14 +113,14 @@ def get_pr_sklearn(xin, xood):
 def get_fpr(xin, xood):
     return np.sum(xood < np.percentile(xin, 95)) / len(xood)
 
-def get_features(model, dataloader, device, max_images=10 ** 10, verbose=False):
+
+def get_features(model, dataloader, device, max_images=10**10, verbose=False):
     features, labels = [], []
     total = 0
 
     model.eval()
 
     for index, (img, label) in tqdm(enumerate(dataloader)):
-
         if total > max_images:
             break
 
