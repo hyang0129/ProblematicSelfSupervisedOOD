@@ -7,7 +7,7 @@ is, then follow the instructions in this github issue
 https://github.com/pytorch/vision/issues/7545. 
 
 Food 101 is donwloaded through TFDS, so it will end up in the default TFDS 
-cache directory. 
+cache directory. Cifar10 and Cifar100 should also automatically download. 
 
 This folder should look something like this 
 
