@@ -154,16 +154,6 @@ class OODDataset(Dataset):
 
             dataframe = df
 
-        elif dataset_name == "affectnet":
-            df = pd.read_csv("affectnet_label_index.csv", index_col=[0])
-            df[df.index < 100000]
-            train_data = Affectnet(df, split="train")
-            test_data = Affectnet(df, split="val")
-
-            datasource = {"train": train_data, "validation": test_data}
-
-            dataframe = df
-
         elif dataset_name == "icmlface":
             df = pd.read_csv("data/icml_face_data.csv")
 
