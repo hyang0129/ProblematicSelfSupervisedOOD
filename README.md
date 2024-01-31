@@ -8,3 +8,6 @@ Use the --help command for additional information on the arguments.
 
 To set up the data, see the data folder readme. 
 
+The gradcam visualization relies on SimCLR loss, which is a loss between multiple images. 
+To solve this issue, we consider only the gradients used to generate the representation
+for the image and ignore the gradients used for other images.  
