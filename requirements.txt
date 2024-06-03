@@ -12,3 +12,6 @@ munch~=4.0.0
 tensorflow_datasets
 faiss
 cupy
+ml_collections
+tensorflow==2.15
+tensorflow_gan
