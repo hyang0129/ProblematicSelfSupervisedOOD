@@ -21,6 +21,10 @@ import tensorflow_datasets as tfds
 import os
 
 
+
+from dataset_filtering import apply_class_filter, get_indist_classes
+
+
 def get_data_scaler(config):
   """Data normalizer. Assume data are always in [0, 1]."""
   if config.data.centered:
@@ -191,6 +195,23 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
     dataset_builder = tf.data.TFRecordDataset(config.data.tfrecords_path)
     train_split_name = eval_split_name = 'train'
 
+
+  # additional dataset implementations
+
+  elif 'CIFAR10_ADJ' in config.data.dataset:
+    dataset_builder = tfds.builder('cifar10')
+    train_split_name = 'train'
+    eval_split_name = 'test'
+
+    def resize_op(img):
+      img = tf.image.convert_image_dtype(img, tf.float32)
+      return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
+
+
+
+
+
+
   else:
     raise NotImplementedError(
       f'Dataset {config.data.dataset} not yet supported.')
@@ -222,7 +243,7 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
 
       return dict(image=img, label=d.get('label', None))
 
-  def create_dataset(dataset_builder, split):
+  def create_dataset(dataset_builder, split, num_epochs = num_epochs):
     dataset_options = tf.data.Options()
     dataset_options.experimental_optimization.map_parallelization = True
     dataset_options.experimental_threading.private_threadpool_size = 48
@@ -239,10 +260,37 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
     ds = ds.map(preprocess_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds = ds.batch(batch_size, drop_remainder=True)
     return ds.prefetch(prefetch_size)
-  
+
+
   print("building train")
   train_ds = create_dataset(dataset_builder, train_split_name)
   print("building test")
   eval_ds = create_dataset(dataset_builder, eval_split_name)
   print("splits done")
+
+
+  # additional functionality for running adjacent OOD
+  # this pretty much filters out the adjacent classes and returns the same dataset
+  # example dataset string is something like CIFAR10_ADJ_ID_0 for 0th seed in distro filter
+  if '_ADJ' in config.data.dataset:
+    print('Applying Filters for Adjacent OOD Benchmark')
+    base_ds = create_dataset(dataset_builder, eval_split_name, num_epochs=1)
+
+    if '_OOD' in config.data.dataset:
+      print('Filtering out ID data to create the OOD set')
+      is_ood = True
+    else:
+      is_ood = False
+
+
+    random_seed = int(config.data.dataset.split('_')[-1])  # take the last part of the dataset name as the seed
+
+    tfindist = get_indist_classes(base_ds, random_state=random_seed)
+
+    print(f'In distribution classes are {sorted(tfindist.numpy())}')
+
+    train_ds = apply_class_filter(train_ds, tfindist, reverse=is_ood)
+    eval_ds = apply_class_filter(train_ds, tfindist, reverse=is_ood)
+
+
   return train_ds, eval_ds, dataset_builder
