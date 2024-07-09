@@ -130,6 +130,40 @@ class ImageDataset(Dataset):
     img = T.ToTensor()(img)
     return img
 
+
+class IterableImageDataset(torch.utils.data.IterableDataset):
+  def __init__(self, tf_dataset, image_size, center_crop=False):
+    self.tf_dataset = tf_dataset
+    self.image_size = image_size
+    self.center_crop = center_crop
+
+  def __len__(self):
+    return len(self.tf_dataset)
+
+  def apply_fn(self, data):
+
+    img = Image.fromarray(data['image'].numpy())
+
+    # dataset should already be RGB
+    # if img.mode != "RGB":
+    #   img = img.convert("RGB")
+
+    if self.center_crop:
+      img = center_crop_arr(img, self.image_size)
+
+    img = T.ToTensor()(img)
+
+    return img
+
+  def __iter__(self):
+    worker_info = torch.utils.data.get_worker_info()
+    if worker_info is None:  # single-process data loading, return the full iterator
+      pass
+    else:  # in a worker process
+      raise NotImplementedError('Not implemented for more than 1 worker')
+    return map(self.apply_fn, self.tf_dataset)
+
+
 def center_crop_arr(pil_image, image_size):
   # We are not on a new enough PIL to support the `reducing_gap`
   # argument, which uses BOX downsampling at powers of two first.

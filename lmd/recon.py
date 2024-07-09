@@ -102,6 +102,10 @@ def get_datasets():
 
   return pos_dataset, neg_dataset
 
+def get_dataset(FLAGS, data_dict):
+  pass
+
+
 def get_mask_info_dict():
   return {
     "mask_type": FLAGS.mask_type, 
@@ -176,6 +180,9 @@ def main(argv):
                           batch_size=FLAGS.batch_size, 
                           shuffle=False, 
                           num_workers=torch.cuda.device_count())
+
+
+
 
   mask_info_dict = get_mask_info_dict()
   if FLAGS.mask_type == "random":

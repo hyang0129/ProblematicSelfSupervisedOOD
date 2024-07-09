@@ -73,7 +73,7 @@ def central_crop(image, size):
   return tf.image.crop_to_bounding_box(image, top, left, size, size)
 
 
-def get_dataset(config, uniform_dequantization=False, evaluation=False):
+def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = False):
   """Create data loaders for training and evaluation.
 
   Args:
@@ -207,9 +207,28 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
       img = tf.image.convert_image_dtype(img, tf.float32)
       return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
 
+  elif 'CIFAR100_ADJ' in config.data.dataset:
+    dataset_builder = tfds.builder('cifar100')
+    train_split_name = 'train'
+    eval_split_name = 'test'
+
+    def resize_op(img):
+      img = tf.image.convert_image_dtype(img, tf.float32)
+      return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
 
 
 
+  elif 'ICML_FACE_ADJ' in config.data.dataset:
+    
+    
+    
+    raise NotImplementedError
+
+  elif 'CARS' in config.data.dataset:
+    raise NotImplementedError
+
+  elif 'FOOD' in config.data.dataset:
+    raise NotImplementedError
 
 
   else:
@@ -235,11 +254,26 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
   else:
     def preprocess_fn(d):
       """Basic preprocessing function scales data to [0, 1) and randomly flips."""
+
       img = resize_op(d['image'])
-      if config.data.random_flip and not evaluation:
-        img = tf.image.random_flip_left_right(img)
-      if uniform_dequantization:
-        img = (tf.random.uniform(img.shape, dtype=tf.float32) + img * 255.) / 256.
+
+      if recon:
+
+        img = tf.image.convert_image_dtype(img, tf.uint8)
+
+        # so we want thes TF datasets to return PIL images, which they can't so we get them to return the uint8
+        # arrays and later on map the iterable to convert it back
+        # not efficient but less opportunities for mistakes
+        pass
+
+      else:
+
+
+
+        if config.data.random_flip and not evaluation:
+          img = tf.image.random_flip_left_right(img)
+        if uniform_dequantization:
+          img = (tf.random.uniform(img.shape, dtype=tf.float32) + img * 255.) / 256.
 
       return dict(image=img, label=d.get('label', None))
 
@@ -255,10 +289,17 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
         split=split, shuffle_files=True, read_config=read_config)
     else:
       ds = dataset_builder.with_options(dataset_options)
-    ds = ds.repeat(count=num_epochs)
-    ds = ds.shuffle(shuffle_buffer_size)
-    ds = ds.map(preprocess_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    ds = ds.batch(batch_size, drop_remainder=True)
+
+    if recon:
+      ds = ds.repeat(count=1)
+      ds = ds.map(preprocess_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    else:
+      ds = ds.repeat(count=num_epochs)
+      ds = ds.shuffle(shuffle_buffer_size)
+      ds = ds.map(preprocess_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+      ds = ds.batch(batch_size, drop_remainder=True)
+
+
     return ds.prefetch(prefetch_size)
 
 

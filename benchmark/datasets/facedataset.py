@@ -22,7 +22,6 @@ class FaceDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df[idx]
-
         label = row["emotion"]
         pixels = row[" pixels"]
 
@@ -32,6 +31,7 @@ class FaceDataset(Dataset):
         image = np.repeat(pixels, 3, axis=-1)
         image = np.uint8(image)
         image = Image.fromarray(image)
+
 
         if self.transform:
             image = self.transform(image)
