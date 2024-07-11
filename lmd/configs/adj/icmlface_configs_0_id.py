@@ -40,7 +40,7 @@ def get_config():
     # data
     data = config.data
     data.centered = True
-    data.dataset = 'CIFAR10_ADJ_ID_1'
+    data.dataset = 'ICML_FACE_ADJ_ID_0'
     data.image_size = 64
 
     # model

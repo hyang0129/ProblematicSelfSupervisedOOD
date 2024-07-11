@@ -42,7 +42,7 @@ def apply_class_filter(dataset, tfindist, reverse=False):
         batch_size = data['label'].shape[0]
         filterd_ds = filterd_ds.unbatch()
 
-    filterd_ds = filterd_ds.filter(lambda x: notfun(tf.reduce_any(x['label'] == tfindist)))
+    filterd_ds = filterd_ds.filter(lambda x: notfun(tf.reduce_any( tf.cast(x['label'], dtype= tf.int64) == tfindist)))
 
     if len(data['label'].shape) > 0:
         filterd_ds = filterd_ds.batch(batch_size)

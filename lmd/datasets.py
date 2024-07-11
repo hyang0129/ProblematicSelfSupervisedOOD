@@ -22,7 +22,7 @@ import os
 
 
 
-from dataset_filtering import apply_class_filter, get_indist_classes
+from dataset_filtering import apply_class_filter, get_indist_classes, get_icml_face
 
 
 def get_data_scaler(config):
@@ -219,10 +219,14 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
 
 
   elif 'ICML_FACE_ADJ' in config.data.dataset:
-    
-    
-    
-    raise NotImplementedError
+
+    dataset_builder = get_icml_face()
+    train_split_name = 'train'
+    eval_split_name = 'test'
+
+    def resize_op(img):
+      img = tf.image.convert_image_dtype(img, tf.float32)
+      return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
 
   elif 'CARS' in config.data.dataset:
     raise NotImplementedError
@@ -287,6 +291,16 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
       dataset_builder.download_and_prepare()
       ds = dataset_builder.as_dataset(
         split=split, shuffle_files=True, read_config=read_config)
+    elif isinstance(dataset_builder, tuple):
+
+      if split == 'train':
+        ds = dataset_builder[0].with_options(dataset_options)
+      elif split == 'test':
+        ds = dataset_builder[1].with_options(dataset_options)
+      else:
+        raise KeyError(f'Dataset {split} not yet supported.')
+
+
     else:
       ds = dataset_builder.with_options(dataset_options)
 
