@@ -25,20 +25,38 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_gan as tfgan
 import logging
+
+
+print('test import torch in runlib')
+import torch
+from torch.utils import tensorboard
+from torchvision.utils import make_grid, save_image
+print('test import torch in runlib success')
+
+
+
 # Keep the import below for registering all model definitions
+
+print('importing models')
+
 from models import ddpm, ncsnv2, ncsnpp
 import losses
 import sampling
 from models import utils as mutils
 from models.ema import ExponentialMovingAverage
+
+print('importing models success')
+
+
 import datasets
 import evaluation
 import likelihood
 import sde_lib
 from absl import flags
-import torch
-from torch.utils import tensorboard
-from torchvision.utils import make_grid, save_image
+
+
+
+
 from utils import save_checkpoint, restore_checkpoint
 import tqdm
 
