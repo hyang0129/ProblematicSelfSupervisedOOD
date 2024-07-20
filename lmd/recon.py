@@ -123,10 +123,6 @@ def get_datasets():
 
   return pos_dataset, neg_dataset
 
-def get_dataset(FLAGS, data_dict):
-  pass
-
-
 def get_mask_info_dict():
   return {
     "mask_type": FLAGS.mask_type, 
