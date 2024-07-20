@@ -226,6 +226,9 @@ def main(argv):
 
   with torch.no_grad():
     for i,batch in enumerate(pos_loader):
+
+      print(batch.shape)
+
       if os.path.exists("%s/pos/batch_%d.pth" % (FLAGS.workdir, i)):
         continue
       
