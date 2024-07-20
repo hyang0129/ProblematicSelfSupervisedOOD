@@ -234,9 +234,11 @@ def main(argv):
       
       if FLAGS.in_domain in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
         print(batch[0].shape)
+        print(batch[0])
         batch = batch[0].cuda()
       else:
         print(batch.shape)
+        print(batch)
         batch = batch.cuda()
         
       save_dict = {"orig":batch.detach().cpu(), "masked": [], "recon": []}
