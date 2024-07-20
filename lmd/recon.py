@@ -14,6 +14,7 @@ import os
 
 from torchvision.datasets import CIFAR10, CIFAR100, SVHN, KMNIST, MNIST, FashionMNIST
 import torchvision.transforms as T
+from datasets import get_dataset
 
 FLAGS = flags.FLAGS
 
@@ -61,9 +62,19 @@ def get_datasets():
   # setting up datasets
   image_size = config.data.image_size
   if FLAGS.in_domain not in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
-    POS_PATH = DATA_TO_PATH[FLAGS.in_domain]
-    pos_subset = read_file(POS_PATH).strip().split("\n")
-    pos_dataset = ImageDataset(pos_subset, image_size=image_size, center_crop=FLAGS.id_center_crop)
+
+    if 'ADJ' not in FLAGS.in_domain:
+      POS_PATH = DATA_TO_PATH[FLAGS.in_domain]
+      pos_subset = read_file(POS_PATH).strip().split("\n")
+      pos_dataset = ImageDataset(pos_subset, image_size=image_size, center_crop=FLAGS.id_center_crop)
+
+    else:
+      # logic for adjacent OOD
+
+      train_ds, eval_ds, dataset_builder = get_dataset(config, uniform_dequantization=False, evaluation=True, recon = True, ood=False)
+      pos_dataset = IterableImageDataset(eval_ds, image_size=config.data.image_size, center_crop=FLAGS.id_center_crop)
+
+
   elif FLAGS.in_domain == 'CIFAR10':
     pos_dataset = CIFAR10(DATA_TO_PATH[FLAGS.in_domain], train=False, 
                         transform=T.Compose([T.ToTensor(),T.Resize(image_size)]), download=True)
@@ -81,9 +92,19 @@ def get_datasets():
     raise NotImplementedError
 
   if FLAGS.out_of_domain not in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
-    NEG_PATH = DATA_TO_PATH[FLAGS.out_of_domain]
-    neg_subset = read_file(NEG_PATH).strip().split("\n")
-    neg_dataset = ImageDataset(neg_subset, image_size=image_size, center_crop=FLAGS.ood_center_crop)
+
+    if 'ADJ' not in FLAGS.in_domain:
+      NEG_PATH = DATA_TO_PATH[FLAGS.out_of_domain]
+      neg_subset = read_file(NEG_PATH).strip().split("\n")
+      neg_dataset = ImageDataset(neg_subset, image_size=image_size, center_crop=FLAGS.ood_center_crop)
+
+    else:
+      # logic for adjacent OOD
+
+      train_ds, eval_ds, dataset_builder = get_dataset(config, uniform_dequantization=False, evaluation=True, recon = True, ood=True)
+      neg_dataset = IterableImageDataset(eval_ds, image_size=config.data.image_size, center_crop=FLAGS.ood_center_crop)
+
+
   elif FLAGS.out_of_domain == 'CIFAR10':
     neg_dataset = CIFAR10(DATA_TO_PATH[FLAGS.out_of_domain], train=False, 
                         transform=T.Compose([T.ToTensor(),T.Resize(image_size)]), download=True)
@@ -168,6 +189,8 @@ class Detector(object):
       return batch_masked.detach().cpu(), batch_inpainted.detach().cpu()
 
 def main(argv):
+  assert torch.cuda.device_count() == 1, 'CUDA device count must be 1 due to iterable style dataset'
+
 
   pos_dataset, neg_dataset = get_datasets()
   pos_loader = DataLoader(pos_dataset,

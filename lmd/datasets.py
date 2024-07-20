@@ -73,7 +73,7 @@ def central_crop(image, size):
   return tf.image.crop_to_bounding_box(image, top, left, size, size)
 
 
-def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = False):
+def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = False, ood=False):
   """Create data loaders for training and evaluation.
 
   Args:
@@ -331,7 +331,7 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
     print('Applying Filters for Adjacent OOD Benchmark')
     base_ds = create_dataset(dataset_builder, eval_split_name, num_epochs=1)
 
-    if '_OOD' in config.data.dataset:
+    if ood:
       print('Filtering out ID data to create the OOD set')
       is_ood = True
     else:
