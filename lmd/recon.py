@@ -185,6 +185,9 @@ class Detector(object):
       return batch_masked.detach().cpu(), batch_inpainted.detach().cpu()
 
 def main(argv):
+
+  detector = Detector()
+
   assert torch.cuda.device_count() == 1, 'CUDA device count must be 1 due to iterable style dataset'
 
 
@@ -220,7 +223,6 @@ def main(argv):
   os.makedirs("%s/pos" % FLAGS.workdir, exist_ok=True)
   os.makedirs("%s/neg" % FLAGS.workdir, exist_ok=True)
 
-  detector = Detector()
 
   with torch.no_grad():
     for i,batch in enumerate(pos_loader):
