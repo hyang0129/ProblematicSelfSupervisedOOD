@@ -196,12 +196,12 @@ def main(argv):
                           drop_last=False, 
                           batch_size=FLAGS.batch_size, 
                           shuffle=False, 
-                          num_workers=torch.cuda.device_count())
+                          num_workers=0)
   neg_loader = DataLoader(neg_dataset, 
                           drop_last=False, 
                           batch_size=FLAGS.batch_size, 
                           shuffle=False, 
-                          num_workers=torch.cuda.device_count())
+                          num_workers=0)
 
 
 
