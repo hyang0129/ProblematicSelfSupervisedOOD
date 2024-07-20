@@ -227,14 +227,16 @@ def main(argv):
   with torch.no_grad():
     for i,batch in enumerate(pos_loader):
 
-      print(batch.shape)
+
 
       if os.path.exists("%s/pos/batch_%d.pth" % (FLAGS.workdir, i)):
         continue
       
       if FLAGS.in_domain in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
+        print(batch[0].shape)
         batch = batch[0].cuda()
       else:
+        print(batch.shape)
         batch = batch.cuda()
         
       save_dict = {"orig":batch.detach().cpu(), "masked": [], "recon": []}
