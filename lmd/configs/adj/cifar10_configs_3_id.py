@@ -56,7 +56,7 @@ def get_config():
     # data
     data = config.data
     data.centered = True
-    data.dataset = 'CIFAR10_ADJ_ID_0'
+    data.dataset = 'CIFAR10_ADJ_ID_3'
     data.image_size = 64
 
     # model
