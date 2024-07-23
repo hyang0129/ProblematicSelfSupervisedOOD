@@ -3,6 +3,10 @@ import pandas as pd
 from tqdm.notebook import tqdm
 import numpy as np
 from PIL import Image
+import tensorflow_datasets as tfds
+import os
+from tensorflow_datasets.image_classification.cars196 import Cars196
+
 
 
 
@@ -89,3 +93,48 @@ def get_icml_face(df_path='data/icml_face_data.csv'):
     test_ds = ds.filter(lambda x: x['split'] == 'test')
 
     return train_ds, test_ds
+
+
+class Cars196_fixed(Cars196):
+    '''
+    A fixed version of the Cars196 dataset, where we follow the same manual download instructions as Cars196
+    for pytorch. We simply set the prefix to reference the stanford_cars folder used in the pytorch dataset.
+    see https://github.com/pytorch/vision/issues/7545
+    '''
+
+
+    def _split_generators(self, dl_manager):
+        prefix = './data/stanford_cars'
+
+        output_files = {
+            'train': prefix,
+            'test': prefix,
+            'extra': prefix,
+            'test_annos': os.path.join(prefix, 'cars_test_annos_withlabels.mat')
+        }
+
+        return [
+            tfds.core.SplitGenerator(
+                name='train',
+                gen_kwargs={
+                    'split_name': 'train',
+                    'data_dir_path': os.path.join(
+                        output_files['train'], 'cars_train'
+                    ),
+                    'data_annotations_path': os.path.join(
+                        output_files['extra'],
+                        os.path.join('devkit', 'cars_train_annos.mat'),
+                    ),
+                },
+            ),
+            tfds.core.SplitGenerator(
+                name='test',
+                gen_kwargs={
+                    'split_name': 'test',
+                    'data_dir_path': os.path.join(
+                        output_files['test'], 'cars_test'
+                    ),
+                    'data_annotations_path': output_files['test_annos'],
+                },
+            ),
+        ]

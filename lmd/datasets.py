@@ -22,7 +22,7 @@ import os
 
 
 
-from dataset_filtering import apply_class_filter, get_indist_classes, get_icml_face
+from dataset_filtering import apply_class_filter, get_indist_classes, get_icml_face, Cars196_fixed
 
 
 def get_data_scaler(config):
@@ -229,7 +229,16 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
       return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
 
   elif 'CARS_ADJ' in config.data.dataset:
-    raise NotImplementedError
+    # you will need to manually download the cars196 data. See the readme in the data dir of the base repo
+    dataset_builder = Cars196_fixed()
+
+    train_split_name = 'train'
+    eval_split_name = 'test'
+
+    def resize_op(img):
+      img = tf.image.convert_image_dtype(img, tf.float32)
+      return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
+
 
   elif 'FOOD_ADJ' in config.data.dataset:
     # if you ran the non LMD experiment, then your default TFDS data dir should have an array record format food101.
