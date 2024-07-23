@@ -228,11 +228,14 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
       img = tf.image.convert_image_dtype(img, tf.float32)
       return tf.image.resize(img, [config.data.image_size, config.data.image_size], antialias=True)
 
-  elif 'CARS_AJD' in config.data.dataset:
+  elif 'CARS_ADJ' in config.data.dataset:
     raise NotImplementedError
 
   elif 'FOOD_ADJ' in config.data.dataset:
-    dataset_builder = tfds.builder('food101')
+    dataset_builder = tfds.data_source("food101")
+
+    dataset_builder = (dataset_builder['train'], dataset_builder['validation'])
+
     train_split_name = 'train'
     eval_split_name = 'validation'
 
