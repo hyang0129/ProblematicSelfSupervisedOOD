@@ -232,9 +232,10 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
     raise NotImplementedError
 
   elif 'FOOD_ADJ' in config.data.dataset:
-    dataset_builder = tfds.data_source("food101")
-
-    dataset_builder = (dataset_builder['train'], dataset_builder['validation'])
+    # if you ran the non LMD experiment, then your default TFDS data dir should have an array record format food101.
+    # this would conflict with the need for a TFRecord format required by the builder.as_dataset
+    # so we just change the data dir and download it again
+    dataset_builder = tfds.builder('food101', data_dir = './data')
 
     train_split_name = 'train'
     eval_split_name = 'validation'
