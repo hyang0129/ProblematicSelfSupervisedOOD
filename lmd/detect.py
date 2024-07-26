@@ -123,6 +123,39 @@ results = np.append(all_pos_s, all_neg_s)
 labels = np.append(np.ones_like(all_pos_s), np.zeros_like(all_neg_s))
 if metric == 'LPIPS' or metric == 'MSE':
     n1 = roc_auc_score(labels, results * (-1))
+
 else:
     n1 = roc_auc_score(labels, results)
 print("%s ROC AUC: %.4f" % (metric, n1))
+
+
+
+import sklearn.metrics as skm
+#### OOD detection ####
+def get_roc_sklearn(xin, xood):
+    labels = [0] * len(xin) + [1] * len(xood)
+    data = np.concatenate((xin, xood))
+    auroc = skm.roc_auc_score(labels, data)
+    return auroc
+
+
+def get_pr_sklearn(xin, xood):
+    labels = [0] * len(xin) + [1] * len(xood)
+    data = np.concatenate((xin, xood))
+    aupr = skm.average_precision_score(labels, data)
+    return aupr
+
+
+def get_fpr(xin, xood):
+    return np.sum(xood < np.percentile(xin, 95)) / len(xood)
+
+
+if metric == 'LPIPS' or metric == 'MSE':
+    all_pos_s, all_neg_s = all_pos_s * -1, all_neg_s * -1
+
+    roc = get_roc_sklearn(all_pos_s, all_neg_s)
+    aupr = get_pr_sklearn(all_pos_s, all_neg_s)
+    fpr = get_fpr(all_pos_s, all_neg_s)
+
+    print(f'{root} -> ROC AUC: {roc:2f} | AUPR: {aupr:2f} | FPR: {fpr:2f}' )
+
