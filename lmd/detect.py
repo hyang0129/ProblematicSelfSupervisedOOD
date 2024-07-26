@@ -158,4 +158,3 @@ if metric == 'LPIPS' or metric == 'MSE':
     fpr = get_fpr(all_pos_s, all_neg_s)
 
     print(f'{root} -> ROC AUC: {roc:2f} | AUPR: {aupr:2f} | FPR: {fpr:2f}' )
-
