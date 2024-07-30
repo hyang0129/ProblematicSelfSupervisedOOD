@@ -40,7 +40,7 @@ def get_config():
     # data
     data = config.data
     data.centered = True
-    data.dataset = 'CARS_ADJ_ID_2'
+    data.dataset = 'CARS_ADJ_ID_3'
     data.image_size = 64
 
     # model
