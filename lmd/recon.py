@@ -273,7 +273,7 @@ def main(argv):
       torch.save(save_dict, "%s/neg/batch_%d.pth" % (FLAGS.workdir, i))
       del save_dict
 
-  with open('complete.txt', 'w') as f:
+  with open(FLAGS.workdir  + '/complete.txt', 'w') as f:
     f.write('complete')
 
 if __name__ == "__main__":
