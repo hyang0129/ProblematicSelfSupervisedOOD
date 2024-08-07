@@ -72,7 +72,7 @@ def get_pc_inpainter(sde, predictor, corrector, inverse_scaler, snr,
       # Initial sample
       x = data * mask + sde.prior_sampling(data.shape).to(data.device) * (1. - mask)
       timesteps = torch.linspace(sde.T, eps, sde.N)
-      for i in tqdm.tqdm(range(sde.N)):
+      for i in tqdm.tqdm(range(sde.N), disable = True):
         t = timesteps[i]
         x, x_mean = corrector_inpaint_update_fn(model, data, mask, x, t)
         x, x_mean = projector_inpaint_update_fn(model, data, mask, x, t)
