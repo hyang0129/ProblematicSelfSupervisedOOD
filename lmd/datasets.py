@@ -365,7 +365,7 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False, recon = 
     print(f'In distribution classes are {sorted(tfindist.numpy())}')
 
     train_ds = apply_class_filter(train_ds, tfindist, reverse=is_ood)
-    eval_ds = apply_class_filter(train_ds, tfindist, reverse=is_ood)
+    eval_ds = apply_class_filter(eval_ds, tfindist, reverse=is_ood)
 
 
   return train_ds, eval_ds, dataset_builder
