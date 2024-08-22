@@ -74,6 +74,8 @@ def get_datasets():
       train_ds, eval_ds, dataset_builder = get_dataset(config, uniform_dequantization=False, evaluation=True, recon = True, ood=False)
       pos_dataset = IterableImageDataset(eval_ds, image_size=config.data.image_size, center_crop=FLAGS.id_center_crop)
 
+      if 'TRAIN' in FLAGS.in_domain:
+        pos_dataset = IterableImageDataset(train_ds, image_size=config.data.image_size, center_crop=FLAGS.id_center_crop)
 
   elif FLAGS.in_domain == 'CIFAR10':
     pos_dataset = CIFAR10(DATA_TO_PATH[FLAGS.in_domain], train=False, 
@@ -252,26 +254,26 @@ def main(argv):
       torch.save(save_dict, "%s/pos/batch_%d.pth" % (FLAGS.workdir, i))
       del save_dict
 
-        
-    for i,batch in enumerate(neg_loader):
-      if os.path.exists("%s/neg/batch_%d.pth" % (FLAGS.workdir, i)):
-        continue
+    if not 'TRAIN' in FLAGS.in_domain:
+      for i,batch in enumerate(neg_loader):
+        if os.path.exists("%s/neg/batch_%d.pth" % (FLAGS.workdir, i)):
+          continue
 
-      if FLAGS.out_of_domain in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
-        batch = batch[0].cuda()
-      else:
-        batch = batch.cuda()
-      
-      save_dict = {"orig":batch.detach().cpu(), "masked": [], "recon": []}
+        if FLAGS.out_of_domain in ['CIFAR10', 'CIFAR100', 'SVHN', 'FashionMNIST', 'MNIST', 'KMNIST']:
+          batch = batch[0].cuda()
+        else:
+          batch = batch.cuda()
 
-      for j in range(FLAGS.reps_per_image):
-        mask_info_dict['maskgen_offset'] = j
-        masked, recon = detector.recon(batch=batch, i=i, mask_info_dict=mask_info_dict, mode="neg")
-        save_dict["masked"].append(masked)
-        save_dict["recon"].append(recon)
-    
-      torch.save(save_dict, "%s/neg/batch_%d.pth" % (FLAGS.workdir, i))
-      del save_dict
+        save_dict = {"orig":batch.detach().cpu(), "masked": [], "recon": []}
+
+        for j in range(FLAGS.reps_per_image):
+          mask_info_dict['maskgen_offset'] = j
+          masked, recon = detector.recon(batch=batch, i=i, mask_info_dict=mask_info_dict, mode="neg")
+          save_dict["masked"].append(masked)
+          save_dict["recon"].append(recon)
+
+        torch.save(save_dict, "%s/neg/batch_%d.pth" % (FLAGS.workdir, i))
+        del save_dict
 
   with open(FLAGS.workdir  + '/complete.txt', 'w') as f:
     f.write('complete')
