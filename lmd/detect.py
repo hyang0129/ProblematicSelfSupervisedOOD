@@ -150,11 +150,22 @@ def get_fpr(xin, xood):
     return np.sum(xood < np.percentile(xin, 95)) / len(xood)
 
 
+# if metric == 'LPIPS' or metric == 'MSE':
+#     all_pos_s, all_neg_s = all_pos_s * -1, all_neg_s * -1
+#
+#     roc = get_roc_sklearn(all_pos_s, all_neg_s)
+#     aupr = get_pr_sklearn(all_pos_s, all_neg_s)
+#     fpr = get_fpr(all_pos_s, all_neg_s)
+#
+#     print(f'{root} -> ROC AUC: {roc:2f} | AUPR: {aupr:2f} | FPR: {fpr:2f}' )
+
+
 if metric == 'LPIPS' or metric == 'MSE':
-    all_pos_s, all_neg_s = all_pos_s * -1, all_neg_s * -1
+    all_pos_s, all_neg_s = all_pos_s, all_neg_s
 
     roc = get_roc_sklearn(all_pos_s, all_neg_s)
     aupr = get_pr_sklearn(all_pos_s, all_neg_s)
     fpr = get_fpr(all_pos_s, all_neg_s)
 
     print(f'{root} -> ROC AUC: {roc:2f} | AUPR: {aupr:2f} | FPR: {fpr:2f}' )
+
