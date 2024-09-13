@@ -34,7 +34,7 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32'):
     pth_name = os.path.join("checkpoints", "epoch_" + str(epoch) + ".pt")
     pre_train = os.path.join(pth_dir, pth_name)
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    batch_size = 512
+    batch_size = 128
 
 
     dataset = FaceDataset()
