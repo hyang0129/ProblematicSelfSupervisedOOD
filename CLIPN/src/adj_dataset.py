@@ -431,9 +431,9 @@ class CarsDataset:
 
         print(f'ID CLASSES :{self.classes}')
 
-        self.train_id_dataset = IterableImageDataset(apply_class_filter(tf_train, tf_test, reverse=False), transforms=preprocess_train)
-        self.test_id_dataset = IterableImageDataset(apply_class_filter(tf_test, tf_test, reverse=False), transforms=preprocess_test)
-        self.test_ood_dataset = IterableImageDataset(apply_class_filter(tf_test, tf_test, reverse=True), transforms=preprocess_test)
+        self.train_id_dataset = IterableImageDataset(apply_class_filter(tf_train, indist, reverse=False), transforms=preprocess_train)
+        self.test_id_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=False), transforms=preprocess_test)
+        self.test_ood_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=True), transforms=preprocess_test)
 
         self.train_loader = torch.utils.data.DataLoader(
             self.train_id_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
