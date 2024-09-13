@@ -193,15 +193,15 @@ class FaceDataset:
         self.test_ood_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=True), transforms=preprocess_test)
 
         self.train_loader = torch.utils.data.DataLoader(
-            self.train_id_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.train_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
         self.test_loader = torch.utils.data.DataLoader(
-            self.test_id_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.test_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
         self.ood_loader = torch.utils.data.DataLoader(
-            self.test_ood_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.test_ood_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
 
@@ -436,18 +436,118 @@ class CarsDataset:
         self.test_ood_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=True), transforms=preprocess_test)
 
         self.train_loader = torch.utils.data.DataLoader(
-            self.train_id_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.train_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
         self.test_loader = torch.utils.data.DataLoader(
-            self.test_id_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.test_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
         self.ood_loader = torch.utils.data.DataLoader(
-            self.test_ood_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            self.test_ood_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
-
+food_names = '''apple_pie
+baby_back_ribs
+baklava
+beef_carpaccio
+beef_tartare
+beet_salad
+beignets
+bibimbap
+bread_pudding
+breakfast_burrito
+bruschetta
+caesar_salad
+cannoli
+caprese_salad
+carrot_cake
+ceviche
+cheesecake
+cheese_plate
+chicken_curry
+chicken_quesadilla
+chicken_wings
+chocolate_cake
+chocolate_mousse
+churros
+clam_chowder
+club_sandwich
+crab_cakes
+creme_brulee
+croque_madame
+cup_cakes
+deviled_eggs
+donuts
+dumplings
+edamame
+eggs_benedict
+escargots
+falafel
+filet_mignon
+fish_and_chips
+foie_gras
+french_fries
+french_onion_soup
+french_toast
+fried_calamari
+fried_rice
+frozen_yogurt
+garlic_bread
+gnocchi
+greek_salad
+grilled_cheese_sandwich
+grilled_salmon
+guacamole
+gyoza
+hamburger
+hot_and_sour_soup
+hot_dog
+huevos_rancheros
+hummus
+ice_cream
+lasagna
+lobster_bisque
+lobster_roll_sandwich
+macaroni_and_cheese
+macarons
+miso_soup
+mussels
+nachos
+omelette
+onion_rings
+oysters
+pad_thai
+paella
+pancakes
+panna_cotta
+peking_duck
+pho
+pizza
+pork_chop
+poutine
+prime_rib
+pulled_pork_sandwich
+ramen
+ravioli
+red_velvet_cake
+risotto
+samosa
+sashimi
+scallops
+seaweed_salad
+shrimp_and_grits
+spaghetti_bolognese
+spaghetti_carbonara
+spring_rolls
+steak
+strawberry_shortcake
+sushi
+tacos
+takoyaki
+tiramisu
+tuna_tartare
+waffles'''.split('\n')
 
 class FoodDataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
@@ -455,7 +555,41 @@ class FoodDataset:
                  num_workers=0,
                  classnames=None,
                  seed=0):
-        pass
+
+        self.classnames = cars_names
+        self.classes = self.classnames
+
+        dataset_builder = tfds.builder('food101', data_dir = './data')
+
+        dataset_builder.download_and_prepare()
+        tf_train = dataset_builder.as_dataset(
+        split='train', shuffle_files=True)
+
+        tf_test = dataset_builder.as_dataset(
+        split='test', shuffle_files=True)
+
+        indist = get_indist_classes(tf_test, random_state=seed)
+
+        self.classes = [self.classnames[i] for i in indist]
+        self.classnames = self.classes
+
+        print(f'ID CLASSES :{self.classes}')
+
+        self.train_id_dataset = IterableImageDataset(apply_class_filter(tf_train, indist, reverse=False), transforms=preprocess_train)
+        self.test_id_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=False), transforms=preprocess_test)
+        self.test_ood_dataset = IterableImageDataset(apply_class_filter(tf_test, indist, reverse=True), transforms=preprocess_test)
+
+        self.train_loader = torch.utils.data.DataLoader(
+            self.train_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+        )
+
+        self.test_loader = torch.utils.data.DataLoader(
+            self.test_id_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+        )
+
+        self.ood_loader = torch.utils.data.DataLoader(
+            self.test_ood_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+        )
 
 class Cifar10Dataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
