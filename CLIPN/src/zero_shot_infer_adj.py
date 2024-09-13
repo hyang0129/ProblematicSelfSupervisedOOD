@@ -30,14 +30,18 @@ def msp_score(logits):
 def energy_score(logits):
     return to_np(torch.logsumexp(logits, -1))
 
-def infer(args, pth_dir, epoch, model_type='ViT-B-32'):
+def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
     pth_name = os.path.join("checkpoints", "epoch_" + str(epoch) + ".pt")
     pre_train = os.path.join(pth_dir, pth_name)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     batch_size = 128
 
+    if dataset_name == 'Face':
+        ds_class = FaceDataset
 
-    dataset = FaceDataset()
+
+
+    dataset = ds_class()
 
     print('loading models')
     vit_class, process_train, process_test = load_model(model_type=model_type, pre_train=pre_train, dataset=dataset, device=device)
@@ -46,9 +50,9 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32'):
     vit_class.fc_no.requires_grad = False
 
     print('prepping dataset')
-    dataset = FaceDataset(preprocess_train = process_train, preprocess_test = process_test, batch_size = batch_size)
+    dataset = ds_class(preprocess_train = process_train, preprocess_test = process_test, batch_size = batch_size)
     test_dataset = {
-        "FACE": dataset.ood_loader,
+        dataset_name: dataset.ood_loader,
     }
 
     test_loader = dataset.test_loader  

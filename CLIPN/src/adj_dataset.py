@@ -154,8 +154,8 @@ class IterableImageDataset(torch.utils.data.IterableDataset):
 
     # img = T.ToTensor()(img)
 
-    if self.transform is not None:
-        img = self.transform(img)
+    if self.transforms is not None:
+        img = self.transforms(img)
 
     # note that this is intended for zero shot OOD so the class is not relevant
     return img, 0
