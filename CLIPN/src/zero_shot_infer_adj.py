@@ -39,6 +39,7 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
     if dataset_name == 'Face':
         ds_class = FaceDataset
 
+    ds_class = CarsDataset
 
 
     dataset = ds_class()
@@ -181,7 +182,6 @@ if __name__ == '__main__':
     ood_lis = []
 
     model_type = "ViT-B-16"
-
 
     for i in range(10, 11):    ### evaluate the model of the 10-th epoch.
         ood_lis += infer(args, pth_dir, i, model_type=model_type)
