@@ -171,7 +171,7 @@ class IterableImageDataset(torch.utils.data.IterableDataset):
 
 class FaceDataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
-                 batch_size=128,
+                 batch_size=32,
                  num_workers=0,
                  classnames=None,
                  seed = 0):
@@ -407,7 +407,7 @@ cars_names = [
 
 class CarsDataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
-                 batch_size=128,
+                 batch_size=32,
                  num_workers=0,
                  classnames=None,
                  seed=0):
@@ -551,7 +551,7 @@ waffles'''.split('\n')
 
 class FoodDataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
-                 batch_size=128,
+                 batch_size=32,
                  num_workers=0,
                  classnames=None,
                  seed=0):
@@ -593,7 +593,7 @@ class FoodDataset:
 
 class Cifar10Dataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
-                 batch_size=128,
+                 batch_size=32,
                  num_workers=0,
                  classnames=None,
                  seed=0):
@@ -603,7 +603,7 @@ class Cifar10Dataset:
 
 class Cifar100Dataset:
     def __init__(self, preprocess_train=None, preprocess_test=None,
-                 batch_size=128,
+                 batch_size=32,
                  num_workers=0,
                  classnames=None,
                  seed=0):
