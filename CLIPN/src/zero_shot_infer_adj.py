@@ -38,12 +38,14 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32'):
 
 
     dataset = FaceDataset()
-    
+
+    print('loading models')
     vit_class, process_train, process_test = load_model(model_type=model_type, pre_train=pre_train, dataset=dataset, device=device)
     
     vit_class.fc_yes.requires_grad = False
     vit_class.fc_no.requires_grad = False
 
+    print('prepping dataset')
     dataset = FaceDataset(preprocess_train = process_train, preprocess_test = process_test, batch_size = batch_size)
     test_dataset = {
         "FACE": dataset.ood_loader,
@@ -165,7 +167,10 @@ def cal_fpr_recall(ind_conf, ood_conf, tpr=0.95):
 
 if __name__ == '__main__':
     args = parse_arguments()
-    
+
+
+    print('starting evaluation')
+
     pth_dir = '.'
     
     header_ood = ['epoch', 'method', 'oodset', 'AUROC', 'FPR@95']
@@ -173,8 +178,9 @@ if __name__ == '__main__':
 
     model_type = "ViT-B-16"
 
+
     for i in range(10, 11):    ### evaluate the model of the 10-th epoch.
         ood_lis += infer(args, pth_dir, i, model_type=model_type)
-        
+
     df = pd.DataFrame(ood_lis, columns=header_ood)
     df.to_csv(os.path.join(pth_dir, 'ood_metric_.csv'), index=False)
