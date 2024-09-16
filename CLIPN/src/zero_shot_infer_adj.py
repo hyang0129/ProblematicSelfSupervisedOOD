@@ -39,8 +39,14 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
     if dataset_name == 'Face':
         ds_class = FaceDataset
 
-    ds_class = CarsDataset
+    elif dataset_name == 'Cars':
+        ds_class = CarsDataset
 
+    elif dataset_name == 'Food':
+        ds_class = FoodDataset
+
+    else:
+        raise NotImplementedError
 
     dataset = ds_class()
 
@@ -184,7 +190,7 @@ if __name__ == '__main__':
     model_type = "ViT-B-16"
 
     for i in range(10, 11):    ### evaluate the model of the 10-th epoch.
-        ood_lis += infer(args, pth_dir, i, model_type=model_type)
+        ood_lis += infer(args, pth_dir, i, model_type=model_type, dataset_name = args.adj_dataset)
 
     df = pd.DataFrame(ood_lis, columns=header_ood)
     df.to_csv(os.path.join(pth_dir, 'ood_metric_.csv'), index=False)

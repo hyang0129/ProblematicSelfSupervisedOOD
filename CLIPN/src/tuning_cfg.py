@@ -146,6 +146,21 @@ def parse_arguments():
         default=1e-8,
         help="TODO",
     )
+
+    parser.add_argument(
+        "--adj_dataset",
+        type=str,
+        default='Face',
+        help="TODO",
+    )
+
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="TODO",
+    )
+
     parsed_args = parser.parse_args()
     parsed_args.device = "cuda" if torch.cuda.is_available() else "cpu"
     
