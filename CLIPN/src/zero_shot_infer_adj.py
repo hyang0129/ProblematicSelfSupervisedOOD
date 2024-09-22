@@ -30,7 +30,7 @@ def msp_score(logits):
 def energy_score(logits):
     return to_np(torch.logsumexp(logits, -1))
 
-def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
+def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face', seed = 0):
     pth_name = os.path.join("checkpoints", "epoch_" + str(epoch) + ".pt")
     pre_train = os.path.join(pth_dir, pth_name)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -48,7 +48,7 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
     else:
         raise NotImplementedError
 
-    dataset = ds_class()
+    dataset = ds_class(seed = seed)
 
     print('loading models')
     vit_class, process_train, process_test = load_model(model_type=model_type, pre_train=pre_train, dataset=dataset, device=device)
@@ -57,7 +57,7 @@ def infer(args, pth_dir, epoch, model_type='ViT-B-32', dataset_name = 'Face'):
     vit_class.fc_no.requires_grad = False
 
     print('prepping dataset')
-    dataset = ds_class(preprocess_train = process_train, preprocess_test = process_test, batch_size = batch_size)
+    dataset = ds_class(preprocess_train = process_train, preprocess_test = process_test, batch_size = batch_size, seed = seed)
     test_dataset = {
         dataset_name: dataset.ood_loader,
     }
@@ -193,7 +193,7 @@ if __name__ == '__main__':
     model_type = "ViT-B-16"
 
     for i in range(10, 11):    ### evaluate the model of the 10-th epoch.
-        ood_lis += infer(args, pth_dir, i, model_type=model_type, dataset_name = args.adj_dataset)
+        ood_lis += infer(args, pth_dir, i, model_type=model_type, dataset_name = args.adj_dataset, seed = args.seed)
 
     df = pd.DataFrame(ood_lis, columns=header_ood)
     df.to_csv(os.path.join(pth_dir, 'ood_metric_.csv'), index=False)
