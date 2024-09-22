@@ -556,7 +556,7 @@ class FoodDataset:
                  classnames=None,
                  seed=0):
 
-        self.classnames = cars_names
+        self.classnames = food_names
         self.classes = self.classnames
 
         dataset_builder = tfds.builder('food101', data_dir = './data')
