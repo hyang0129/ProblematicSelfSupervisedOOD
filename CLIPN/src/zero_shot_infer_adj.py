@@ -132,20 +132,20 @@ def cal_all_metric(id_dataset, model, epoch, ood_dataset=None, flag = True):
                     
                  
             #### MSP
-            auc, fpr = cal_auc_fpr(ind_prob, ood_prob)
-            res.append([epoch, "MSP", name, auc, fpr])
+            auc, fpr, aupr = cal_auc_fpr(ind_prob, ood_prob)
+            res.append([epoch, "MSP", name, auc, fpr, aupr])
             #### MaxLogit
-            auc, fpr = cal_auc_fpr(ind_logits, ood_logits)
-            res.append([epoch, "MaxLogit", name, auc, fpr])
+            auc, fpr, aupr = cal_auc_fpr(ind_logits, ood_logits)
+            res.append([epoch, "MaxLogit", name, auc, fpr, aupr])
             #### Energy
-            auc, fpr = cal_auc_fpr(ind_energy, ood_energy)
-            res.append([epoch, "Energy", name, auc, fpr])
+            auc, fpr, aupr = cal_auc_fpr(ind_energy, ood_energy)
+            res.append([epoch, "Energy", name, auc, fpr, aupr])
             if flag:
-                auc, fpr = cal_auc_fpr(ind_ctw, ood_ctw)
-                res.append([epoch, "CTW", name, auc, fpr])
+                auc, fpr, aupr = cal_auc_fpr(ind_ctw, ood_ctw)
+                res.append([epoch, "CTW", name, auc, fpr, aupr])
                 
-                auc, fpr = cal_auc_fpr(ind_atd, ood_atd)
-                res.append([epoch, "ATD", name, auc, fpr])
+                auc, fpr, aupr = cal_auc_fpr(ind_atd, ood_atd)
+                res.append([epoch, "ATD", name, auc, fpr, aupr])
                 
             
     pred_lis = np.array(pred_lis)
@@ -164,7 +164,10 @@ def cal_auc_fpr(ind_conf, ood_conf):
     auroc = metrics.roc_auc_score(ind_indicator, conf)
     fpr,tpr,thresh = Roc(ind_indicator, conf, pos_label=1)
     fpr = float(interpolate.interp1d(tpr, fpr)(0.95))
-    return auroc, fpr
+
+    aupr = metrics.average_precision_score(ind_indicator, conf)
+
+    return auroc, fpr, aupr
 
 def cal_fpr_recall(ind_conf, ood_conf, tpr=0.95):
     conf = np.concatenate((ind_conf, ood_conf))
@@ -184,7 +187,7 @@ if __name__ == '__main__':
 
     pth_dir = '.'
     
-    header_ood = ['epoch', 'method', 'oodset', 'AUROC', 'FPR@95']
+    header_ood = ['epoch', 'method', 'oodset', 'AUROC', 'FPR@95', 'AUPR']
     ood_lis = []
 
     model_type = "ViT-B-16"
