@@ -566,7 +566,7 @@ class FoodDataset:
         split='train', shuffle_files=True)
 
         tf_test = dataset_builder.as_dataset(
-        split='test', shuffle_files=True)
+        split='validation', shuffle_files=True)
 
         indist = get_indist_classes(tf_test, random_state=seed)
 
